@@ -1,4 +1,4 @@
-package eis.examples.acconnector2010;
+package eis.acconnector2010;
 
 import java.util.LinkedList;
 
@@ -15,9 +15,12 @@ public interface ConnectionListener {
 	/**
 	 * Handles a message. A message is a list of percepts.
 	 * 
-	 * @param connection the connection from where the percepts came
-	 * @param percepts the percepts sent by the server
+	 * @param connection
+	 *            the connection from where the percepts came
+	 * @param percepts
+	 *            the percepts sent by the server
 	 */
-	public void handleMessage(Connection connection, LinkedList<Percept> percepts);
-	
+	public void handleMessage(Connection connection,
+			LinkedList<Percept> percepts);
+
 }
