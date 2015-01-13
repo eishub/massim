@@ -1,5 +1,5 @@
 environment {
- "eismassim-1.0.jar".
+ "massim-0.5.jar".
 }
 
 agentfiles {
