@@ -28,6 +28,7 @@ import eis.exceptions.RelationException;
 import eis.iilang.Action;
 import eis.iilang.EnvironmentState;
 import eis.iilang.IILElement;
+import eis.iilang.Parameter;
 import eis.iilang.Percept;
 
 /**
@@ -54,13 +55,17 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 	private Map<String, Entity> entityNamesToObjects;
 	private Vector<Statistic> stats = new Vector<Statistic>();
 
+	public EnvironmentInterface() {
+		// doInit is delayed till init() is called.
+	}
+
 	/**
 	 * Instantiates the environment-interface. Firstly a configuration file is
 	 * parsed and used to instantiate the entities. After that a first attempt
 	 * is made to connect the entities to the MASSim-Server.
 	 */
-	public EnvironmentInterface() {
 
+	private void doInit() {
 		Entity.setEnvironmentInterface(this);
 		entities = new LinkedList<Entity>();
 		entityNamesToObjects = new HashMap<String, Entity>();
@@ -387,16 +392,6 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 	}
 
 	@Override
-	protected boolean isSupportedByEnvironment(Action action) {
-		return true;
-	}
-
-	@Override
-	protected boolean isSupportedByType(Action action, String type) {
-		return true;
-	}
-
-	@Override
 	protected Percept performEntityAction(String entity, Action action)
 			throws ActException {
 		Entity e = entityNamesToObjects.get(entity);
@@ -413,18 +408,8 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 	}
 
 	@Override
-	public String requiredVersion() {
-		return "0.5";
-	}
-
-	@Override
 	public String getType(String entity) {
 		return entityNamesToObjects.get(entity).getType();
-	}
-
-	@Override
-	public boolean isInitSupported() {
-		return false;
 	}
 
 	/*
@@ -449,6 +434,12 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 	 * 
 	 * }
 	 */
+
+	@Override
+	public void init(Map<String, Parameter> parameters)
+			throws ManagementException {
+		doInit();
+	}
 
 	@Override
 	public void run() {
@@ -509,6 +500,16 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 			nstat.applySettingsOf(stats.get(stats.size() - 2));
 			return nstat;
 		}
+	}
+
+	@Override
+	protected boolean isSupportedByEnvironment(Action arg0) {
+		return true;
+	}
+
+	@Override
+	protected boolean isSupportedByType(Action arg0, String arg1) {
+		return true;
 	}
 
 }
