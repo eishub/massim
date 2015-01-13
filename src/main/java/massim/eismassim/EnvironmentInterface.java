@@ -1,7 +1,12 @@
 package massim.eismassim;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -63,33 +68,44 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 	 * Instantiates the environment-interface. Firstly a configuration file is
 	 * parsed and used to instantiate the entities. After that a first attempt
 	 * is made to connect the entities to the MASSim-Server.
+	 * 
+	 * @throws FileNotFoundException
+	 * @throws ManagementException
 	 */
 
-	private void doInit() {
+	private void doInit() throws FileNotFoundException, ManagementException {
 		Entity.setEnvironmentInterface(this);
 		entities = new LinkedList<Entity>();
 		entityNamesToObjects = new HashMap<String, Entity>();
 
 		stats.add(new Statistic());
 
+		// I only want to see Prolog stuff
+		IILElement.toProlog = true;
+
 		// parse config-file
 		try {
-			parseConfig("eismassimconfig.xml");
+			parseConfig(resolveFile("eismassimconfig.xml"));
 		} catch (ParseException e) {
 			// e.printStackTrace();
 			System.out.println("Parse-exception: " + e.getMessage());
 		}
 
+		// env is officially started now. Must be done before introducing
+		// entities since EIS 0.5.0
+		setState(EnvironmentState.PAUSED);
+
 		// add entities
 		for (Entity e : entities) {
+			entityNamesToObjects.put(e.getName(), e);
 			try {
 				addEntity(e.getName());
+				// FIXME WHAT???
 				assert e.getName().equals("dummyagent9") == false;
 			} catch (EntityException e1) {
 				e1.printStackTrace();
 				assert false : "Handle!";
 			}
-			entityNamesToObjects.put(e.getName(), e);
 		}
 
 		// establish connections
@@ -100,28 +116,40 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 		// some structure for checking connections?
 		// new Thread(this).start();
 
-		// I only want to see Prolog stuff
-		IILElement.toProlog = true;
+	}
 
-		// set the state
+	/**
+	 * Tries to find given filename in the directory where our jar is.
+	 * 
+	 * @param filename
+	 * @return File.
+	 * @throws FileNotFoundException
+	 *             if file not found.
+	 */
+	private File resolveFile(String filename) throws FileNotFoundException {
+		URL url = getClass().getProtectionDomain().getCodeSource()
+				.getLocation();
+		Path p;
 		try {
-			setState(EnvironmentState.PAUSED);
-		} catch (ManagementException e1) {
-			e1.printStackTrace();
+			p = Paths.get(url.toURI());
+		} catch (URISyntaxException e) {
+			throw new FileNotFoundException("failed to get path to " + url);
 		}
-
+		File mapfile = p.getParent().resolve(filename).toFile();
+		if (!mapfile.exists()) {
+			throw new FileNotFoundException("File does not exist " + mapfile);
+		}
+		return mapfile;
 	}
 
 	/**
 	 * Parses a configuration-file.
 	 * 
-	 * @param filename
+	 * @param file
+	 *            the file containing the config.
 	 * @throws ParseException
 	 */
-	private void parseConfig(String filename) throws ParseException {
-
-		File file = new File(filename);
-
+	private void parseConfig(File file) throws ParseException {
 		// parse the XML document
 		Document doc = null;
 		try {
@@ -438,7 +466,11 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 	@Override
 	public void init(Map<String, Parameter> parameters)
 			throws ManagementException {
-		doInit();
+		try {
+			doInit();
+		} catch (FileNotFoundException e) {
+			throw new ManagementException("could not initialize", e);
+		}
 	}
 
 	@Override
