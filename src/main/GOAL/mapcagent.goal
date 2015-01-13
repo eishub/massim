@@ -1,0 +1,129 @@
+% Author W.Pasman 24mar2011 closely following SimpleExplorerAgent.java
+init module { 
+	knowledge{
+		atFullCharge :- energy(E), maxEnergy(E).
+		
+		% SimpleExplorerAgent inserts this in BB. Using KR is clearer & more efficient.
+		neighbor(Y) :- posi(X), neighbor(X,Y).
+
+		% new support function to make code more readible.
+		neighbor(X,Y) :- visibleEdge(X,Y).
+		neighbor(X,Y) :- visibleEdge(Y,X).
+		
+		% another improvement for readibility.
+		surveyed(X,Y) :- surveyedEdge(X,Y,_).
+		surveyed(X,Y) :- surveyedEdge(Y,X,_).
+	}	
+	beliefs{
+		step(unknown).
+	}	
+	goals{
+	}	
+	actionspec{
+		recharge {
+		   pre{ not(doneAction) }
+		   post{ doneAction }
+		}
+		buy(X) {
+		   pre{ not(doneAction), X==battery, money(M), M>=10 }
+		   post{ doneAction }
+		}
+		probe {
+		   pre{ not(doneAction) }
+		   post{ doneAction }
+		}
+		survey { % what does this do anyway?
+		   pre{ not(doneAction) }
+		   post{ doneAction }
+		}
+		goto(X) {
+		   pre{ not(doneAction) }
+		   post{ doneAction }
+		}
+		skip {
+		   pre{ not(doneAction) }
+		   post{ doneAction }
+		}
+	}
+}
+main module {		
+	program {
+		% note, Tristan uses the goal 'beAtFullCharge'. 
+		% in GOAL we use 'atFullCharge' instead.
+		
+		% plan Recharge. idea is to adopt goal when low, and then charge till full.
+		if bel(energy(E), maxEnergy(MaxE), E<MaxE/3) then adopt(atFullCharge).
+		if a-goal(atFullCharge) then recharge.
+
+		%plan buy battery
+		if bel(true) then buy(battery).
+
+		% planprobe
+		if bel(posi(X), not(probedVertex(X,N)) ) then probe.
+		if bel(posi(X), probedVertex(X,N), neighbor(Y), not(probedVertex(Y,_))) 
+			then goto(Y).
+			
+		% planSurvey
+		if bel(posi(X), neighbor(X,Y),not(surveyed(X,Y))) then survey. 
+			
+		% planRandomWalk
+		if bel(neighbor(Y)) then goto(Y).
+		
+		% skip.
+		if bel(true) then skip.
+	}
+}	
+event module {
+	program {
+		if bel(true) then handlemessages.
+		if bel(true) then handlepercepts.
+	}
+}
+module handlemessages  {
+	program [order=linearall] {
+		% believe everything the others say (well, sort of)
+		forall bel(received(A,probedVertex(X,N)))
+			do insert(probedVertex(X,N)) + delete(received(A,probedVertex(X,N))).
+		forall bel(received(A,surveyedEdge(X,Y,N))) 
+			do insert(surveyedEdge(X,Y,N)) + delete(received(A,surveyedEdge(X,Y,N))).
+	}
+}
+module handlepercepts  {
+	program  [order=linearall] {
+		forall bel(visibleEdge(X,N)) do delete(visibleEdge(X,N)).
+		forall bel(visibleEntity(Name,Vertex,Team,Enabled)) 
+			do delete(visibleEntity(Name,Vertex,Team,Enabled)).
+
+		% block till step received
+		if bel(percept(step(X)), step(Y), Y\=X) then
+			delete(step(Y)) + insert(step(X)) + delete(doneAction).
+
+		forall bel(percept(visibleEntity(Name,Vertex,Team,Enabled)))
+			do insert(visibleEntity(Name,Vertex,Team,Enabled)).
+		forall bel(percept(visibleEdge(X,Y))) do insert(visibleEdge(X,Y)).
+		
+		forall bel(percept(probedVertex(X,N)),agent(A)) 
+			do insert(probedVertex(X,N)) + sendonce(A,probedVertex(X,N)).
+		
+		forall bel(percept(surveyedEdge(X,Y,N)), agent(A))
+			do insert(surveyedEdge(X,Y,N)) + sendonce(A,surveyedEdge(X,Y,N)).
+		
+			% iAmDisabled should end up in mailbox, right????
+		if bel(percept(health(N)), agent(A)) then send(A, iAmDisabled).
+		
+		% we use posi(X) instead of position(X) because position is reserved predicate.
+		if bel(posi(X)) then delete(posi(X)).
+		if bel(percept(position(X))) then insert(posi(X)).
+		
+		if bel(energy(E)) then delete(energy(E)). 
+		if bel(percept(energy(E)) ) then insert(energy(E)).
+
+		if bel(maxEnergy(E)) then delete(maxEnergy(E)). 
+		if bel(percept(maxEnergy(E))) then insert(maxEnergy(E)).
+
+		if bel(money(M)) then delete(money(M)).
+		if bel(percept(money(M))) then insert(money(M)).
+		
+		%atFullCharge is a KR rule, not a belief.
+	}
+}

@@ -1,0 +1,12 @@
+environment {
+ "eismassim-1.0.jar".
+}
+
+agentfiles {
+	"mapcagent.goal" [name=file1] .
+}
+
+launchpolicy {
+    when [type=mars2011entity,max=9]@env do launch mapcagent:file1 . 
+}
+
