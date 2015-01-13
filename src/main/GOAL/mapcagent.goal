@@ -102,14 +102,14 @@ module handlepercepts  {
 			do insert(visibleEntity(Name,Vertex,Team,Enabled)).
 		forall bel(percept(visibleEdge(X,Y))) do insert(visibleEdge(X,Y)).
 		
-		forall bel(percept(probedVertex(X,N)),agent(A)) 
-			do insert(probedVertex(X,N)) + (A).sendonce(probedVertex(X,N)).
+		forall bel(percept(probedVertex(X,N))) 
+			do insert(probedVertex(X,N)) + allother.sendonce(probedVertex(X,N)).
 		
-		forall bel(percept(surveyedEdge(X,Y,N)), agent(A))
-			do insert(surveyedEdge(X,Y,N)) + (A).sendonce(surveyedEdge(X,Y,N)).
+		forall bel(percept(surveyedEdge(X,Y,N)))
+			do insert(surveyedEdge(X,Y,N)) + allother.sendonce(surveyedEdge(X,Y,N)).
 		
 			% iAmDisabled should end up in mailbox, right????
-		if bel(percept(health(N)), agent(A)) then (A).send(iAmDisabled).
+		if bel(percept(health(N))) then allother.send(iAmDisabled).
 		
 		% we use posi(X) instead of position(X) because position is reserved predicate.
 		if bel(posi(X)) then delete(posi(X)).
