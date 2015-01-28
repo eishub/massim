@@ -386,7 +386,8 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 
 		Entity e = entityNamesToObjects.get(entity);
 		if (e.isConnected() == false) {
-			throw new PerceiveException("no valid connection");
+			return new LinkedList<Percept>();
+			// throw new PerceiveException("no valid connection");
 		}
 
 		LinkedList<Percept> percepts = e.getAllPercepts();
@@ -430,7 +431,7 @@ public class EnvironmentInterface extends EIDefaultImpl implements Runnable {
 		try {
 			e.performAction(action);
 		} catch (ActException ee) {
-			throw ee;
+			return new Percept("error " + ee.toString());
 		}
 		return new Percept("done");
 	}
