@@ -1,6 +1,6 @@
 # The Multi-Agent Programming Contest *Agents on Mars* Scenario
 
-<img align="right" width="200" src="massim.png"/>
+<img align="right" width="300" src="massim.png"/>
 
 The Agents on Mars scenario that is used in the [MAPC](https://multiagentcontest.org/) competition from 2011-2014. This is the version used in 2011 that allows agents to connect to the simulator using the EIS interface. 
 
