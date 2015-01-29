@@ -8,15 +8,15 @@ The Agents on Mars scenario that is used in the [MAPC](https://multiagentcontest
 Usage
 =====
 
- * Unzip the ```downloads/massim-2011-1.0.2-bin.zip``` in a convenient place <MASSIM>
+ * Unzip the ```downloads/massim-2011-1.0.2-bin.zip``` in a convenient place &lt;MASSIM$gt;
  
  * start the server
-  * open a terminal and go to the <MASSIM>/massim/scripts directory
+  * open a terminal and go to the &lt;MASSIM$gt;/massim/scripts directory
   * run the startServer.sh script
   * type ```0``` and press enter (once). This selects but does not yet start the tournament
  
  * start the viewer
-    * open a terminal and go to the <MASSIM>/massim/scripts directory
+    * open a terminal and go to the &lt;MASSIM$gt;/massim/scripts directory
    * run the startMarsMonitor.sh script
   
  * run the MAS
