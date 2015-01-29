@@ -25,5 +25,5 @@ Usage
   * run the mas
   * switch to the server terminal window
   * press enter to start the tournament
- 
+  * press run in GOAL a few more times if new agents enter the scene in paused mode.
  
