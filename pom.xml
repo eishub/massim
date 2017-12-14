@@ -13,7 +13,7 @@
 	<name>massim</name>
 	<description>The task of your agents is to find the best water wells and occupy the best zones of Mars</description>
 	<url>http://github.com/eishub/${environmentname}</url>
-	<version>0.5</version>
+	<version>1.0.0-SNAPSHOT</version>
 
 	<developers>
 		<developer>
@@ -33,6 +33,19 @@
 		<url>https://github.com/eishub/${environmentname}/issues</url>
 		<system>Github ${environmentname} Issues</system>
 	</issueManagement>
+
+	<profiles>
+		<profile>
+			<id>java8-doclint-disabled</id>
+			<activation>
+				<jdk>[1.8,)</jdk>
+			</activation>
+			<properties>
+				<javadoc.opts>-Xdoclint:none</javadoc.opts>
+			</properties>
+		</profile>
+	</profiles>
+
 
 	<scm>
 		<connection>scm:git:git@github.com:eishub/${environmentname}.git</connection>
@@ -101,6 +114,10 @@
 						<goals>
 							<goal>jar</goal>
 						</goals>
+						<configuration>
+							<additionalparam>${javadoc.opts}</additionalparam>
+						</configuration>
+
 					</execution>
 				</executions>
 			</plugin>
@@ -201,7 +218,7 @@
 		<dependency>
 			<groupId>eishub</groupId>
 			<artifactId>eis</artifactId>
-			<version>0.5.0</version>
+			<version>0.6.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

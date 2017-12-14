@@ -1,12 +1,16 @@
-environment {
- env="massim-0.5.jar".
-}
+use  env="massim-1.0.0-SNAPSHOT.jar" as environment.
 
-agentfiles {
-	"mapcagent.goal" [name=file1] .
-}
+
+
+define mapcagent as agent {
+	use mapcagent as main module.
+	use mapcEvents as event module.
+} 
 
 launchpolicy {
-    when [type=mars2011entity,max=9]@env do launch mapcagent:file1 . 
+	when [type=mars2011entity,max=9]@env launch mapcagent.
 }
+
+
+
 
